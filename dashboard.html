@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Secure & Share Govt Docs</title>
+  <link rel="stylesheet" href="css/styles.css"/>
+  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-storage-compat.js"></script>
+  <script src="js/firebaseConfig.js"></script>
+  <script src="js/logger.js"></script>
+  <script src="js/otpMock.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/sharing.js"></script>
+</head>
+<body>
+<header class="app-header">
+  <h1>Secure & Share Govt Documents</h1>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="upload.html">Upload</a>
+    <a href="share.html">Share</a>
+    <a href="profile.html">Profile</a>
+    <button id="logoutBtn" class="btn--ghost">Logout</button>
+  </nav>
+</header>
+<main class="container">
+
+<section class="card">
+  <h2>Dashboard</h2>
+  <div id="docList" class="grid"></div>
+  <p><a class="btn" href="upload.html">Upload a Document</a></p>
+</section>
+<script>
+  Auth.requireAuth();
+  async function loadDocs(){
+    const list = await DB.listMyDocuments();
+    const container = document.getElementById('docList');
+    container.innerHTML = list.map(d => `
+      <div class='doc card'>
+        <h3>\${d.title || d.filename}</h3>
+        <p class='muted'>Type: \${d.type || 'file'} | Shared with: \${(d.sharedWith||[]).length} user(s)</p>
+        <div class='row'>
+          <a class='btn btn--secondary' href='\${d.url}' target='_blank'>View</a>
+          <button class='btn btn--ghost' onclick='UI.copy("\${d.url}")'>Copy Link</button>
+        </div>
+        <p class='muted'>ID: \${d.id}</p>
+      </div>`).join('');
+  }
+  loadDocs();
+</script>
+
+</main>
+<footer class="app-footer">© 2025 Secure & Share</footer>
+<script>
+  document.getElementById('logoutBtn')?.addEventListener('click', async ()=>{
+    try{ await Auth.logout(); UI.flash('Logged out'); location.href='login.html'; }catch(e){ UI.flash(e.message,'error'); }
+  });
+</script>
+</body>
+</html>

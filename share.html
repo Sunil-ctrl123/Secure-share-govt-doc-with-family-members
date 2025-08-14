@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Secure & Share Govt Docs</title>
+  <link rel="stylesheet" href="css/styles.css"/>
+  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.4/firebase-storage-compat.js"></script>
+  <script src="js/firebaseConfig.js"></script>
+  <script src="js/logger.js"></script>
+  <script src="js/otpMock.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/storage.js"></script>
+  <script src="js/sharing.js"></script>
+</head>
+<body>
+<header class="app-header">
+  <h1>Secure & Share Govt Documents</h1>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="dashboard.html">Dashboard</a>
+    <a href="upload.html">Upload</a>
+    <a href="share.html">Share</a>
+    <a href="profile.html">Profile</a>
+    <button id="logoutBtn" class="btn--ghost">Logout</button>
+  </nav>
+</header>
+<main class="container">
+
+<section class="card narrow">
+  <h2>Share Document</h2>
+  <label>Document ID <input id="docId" placeholder="Paste Document ID"></label>
+  <label>Share with Emails (comma separated) <input id="shareEmails" placeholder="user1@example.com, user2@example.com"></label>
+  <button id="shareBtn" class="btn">Share</button>
+</section>
+<script>
+  Auth.requireAuth();
+  document.getElementById('shareBtn').addEventListener('click', async ()=>{
+    const docId = document.getElementById('docId').value.trim();
+    const emails = document.getElementById('shareEmails').value.split(',').map(s=>s.trim()).filter(Boolean);
+    try{ await Sharing.shareWithEmails(docId, emails); UI.flash('Sharing updated'); }
+    catch(e){ UI.flash(e.message,'error'); }
+  });
+</script>
+
+</main>
+<footer class="app-footer">© 2025 Secure & Share</footer>
+<script>
+  document.getElementById('logoutBtn')?.addEventListener('click', async ()=>{
+    try{ await Auth.logout(); UI.flash('Logged out'); location.href='login.html'; }catch(e){ UI.flash(e.message,'error'); }
+  });
+</script>
+</body>
+</html>
